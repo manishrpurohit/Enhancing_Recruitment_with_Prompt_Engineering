@@ -1,4 +1,10 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables unconditionally
+env_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(env_path, override=True)
+
 from flask import Flask, render_template, request, jsonify
 
 # Try importing CORS gracefully
@@ -7,13 +13,6 @@ try:
     CORS_AVAILABLE = True
 except ImportError:
     CORS_AVAILABLE = False
-
-# Try importing dotenv gracefully
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
 
 # Try importing Google GenAI SDK gracefully
 try:
