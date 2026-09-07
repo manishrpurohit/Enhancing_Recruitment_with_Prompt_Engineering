@@ -5,5 +5,8 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
-      - key: 
+      - key: GOOGLE_API_KEY
         sync: false
+      - key: DEFAULT_MODEL
+        value: gemini-3.6-flash
+
