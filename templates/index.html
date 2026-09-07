@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Recruitment Assist | Enhancing Recruitment with Prompt Engineering</title>
+    <meta name="description" content="AI-powered recruitment intelligence platform leveraging Gemini GPT models for Job Description generation, resume screening, match scoring, and interview questions.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Ambient Background Blur Blobs -->
+    <div class="bg-glow blob-1"></div>
+    <div class="bg-glow blob-2"></div>
+    <div class="bg-glow blob-3"></div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>RecruitAI <span>Assist</span></h1>
+                    <p>Prompt Engineering for HR & Talent Acquisition</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="status-badge" id="api-status-badge">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking API...</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-settings">
+                    <i class="fa-solid fa-key"></i> API Key Settings
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Container -->
+    <main class="app-main">
+        <div class="container">
+            
+            <!-- Hero Announcement Banner -->
+            <section class="hero-banner glass-card">
+                <div class="hero-content">
+                    <div class="hero-badge"><i class="fa-solid fa-sparkles"></i> Google Gemini AI Powered</div>
+                    <h2>Enhance Your Hiring Workflow with AI</h2>
+                    <p>Automate job description crafting, candidate resume screening with match scoring, and interview question formulation in seconds.</p>
+                    <div class="hero-stats">
+                        <div class="stat-item"><i class="fa-solid fa-gauge-high"></i> <span>10x Faster Screening</span></div>
+                        <div class="stat-item"><i class="fa-solid fa-scale-balanced"></i> <span>Objective Match Scoring</span></div>
+                        <div class="stat-item"><i class="fa-solid fa-file-pdf"></i> <span>PyMuPDF + OCR Engine</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs" role="tablist">
+                <button class="tab-btn active" data-tab="tab-jd" role="tab">
+                    <i class="fa-solid fa-file-pen"></i> Job Spec Generator
+                </button>
+                <button class="tab-btn" data-tab="tab-screener" role="tab">
+                    <i class="fa-solid fa-id-card-clip"></i> Candidate Screener
+                </button>
+                <button class="tab-btn" data-tab="tab-questions" role="tab">
+                    <i class="fa-solid fa-comments"></i> Interview Questions
+                </button>
+            </nav>
+
+            <!-- TAB 1: Job Description Generator -->
+            <section id="tab-jd" class="tab-content active">
+                <div class="grid-2col">
+                    <!-- Control Panel Card -->
+                    <div class="card glass-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Job Spec</h2>
+                            <p>Enter the role title and industry profile to generate a structured Job Specification.</p>
+                        </div>
+                        
+                        <!-- Quick Presets -->
+                        <div class="preset-group">
+                            <span class="preset-label">⚡ Quick Presets:</span>
+                            <button type="button" class="preset-btn" id="preset-jd-data-eng">Data Engineer</button>
+                            <button type="button" class="preset-btn" id="preset-jd-ml-eng">ML Engineer</button>
+                            <button type="button" class="preset-btn" id="preset-jd-devops">DevOps Lead</button>
+                        </div>
+
+                        <form id="form-jd">
+                            <div class="form-group">
+                                <label for="jd-role"><i class="fa-solid fa-briefcase"></i> Job Title / Role</label>
+                                <input type="text" id="jd-role" class="form-control" placeholder="e.g. Data Engineer, Senior Python Developer" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="jd-company"><i class="fa-solid fa-building"></i> Company Type / Industry</label>
+                                <input type="text" id="jd-company" class="form-control" placeholder="e.g. FinTech startup, HealthTech enterprise, SaaS platform" value="tech company">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-gen-jd">
+                                <i class="fa-solid fa-sparkles"></i> Generate Job Description
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Output Panel Card -->
+                    <div class="card glass-card output-card">
+                        <div class="card-header border-bottom">
+                            <h3><i class="fa-solid fa-file-lines"></i> Output Job Specification</h3>
+                            <div class="output-actions" id="jd-actions" style="display: none;">
+                                <button class="btn btn-icon-sm" id="btn-copy-jd" title="Copy Markdown"><i class="fa-regular fa-copy"></i></button>
+                                <button class="btn btn-icon-sm" id="btn-download-jd" title="Download Spec"><i class="fa-solid fa-download"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="placeholder-state" id="jd-placeholder">
+                                <i class="fa-solid fa-file-waveform"></i>
+                                <p>Fill in the role details and click <strong>Generate Job Description</strong> to produce AI-crafted requirements.</p>
+                            </div>
+                            <div class="loading-spinner" id="jd-loading" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Crafting role specification using GPT-4 prompt engineering...</p>
+                            </div>
+                            <div class="output-content markdown-body" id="jd-output" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: Resume Screener & PDF Parser -->
+            <section id="tab-screener" class="tab-content">
+                <div class="grid-2col">
+                    <!-- Control & Input Panel Card -->
+                    <div class="card glass-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-user-check"></i> Evaluate Candidate Fit</h2>
+                            <p>Match candidate resumes against job criteria with AI match scoring (1–10 scale) and qualitative breakdown.</p>
+                        </div>
+                        
+                        <!-- Quick Presets -->
+                        <div class="preset-group">
+                            <span class="preset-label">⚡ Quick Test:</span>
+                            <button type="button" class="preset-btn" id="preset-screener-sample">Load Sample Resume & Requirements</button>
+                        </div>
+
+                        <form id="form-screener">
+                            <div class="form-group">
+                                <label for="screener-requirements"><i class="fa-solid fa-list-check"></i> Job Requirements & Qualifications</label>
+                                <textarea id="screener-requirements" class="form-control" rows="4" placeholder="Paste key requirements (e.g. 5+ years Python, PyTorch, Cloud deployment, REST APIs)..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-file-pdf"></i> Upload Candidate Resume (PDF)</label>
+                                <div class="dropzone" id="pdf-dropzone">
+                                    <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;">
+                                    <div class="dropzone-inner" id="dropzone-prompt">
+                                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                                        <p>Drag & drop candidate PDF resume here, or <span class="browse-link">browse file</span></p>
+                                        <span class="dropzone-hint">Supports text PDFs & scanned image PDFs (OCR fallback)</span>
+                                    </div>
+                                    <div class="dropzone-file-info" id="dropzone-file-info" style="display: none;">
+                                        <i class="fa-solid fa-file-pdf pdf-icon"></i>
+                                        <div class="file-details">
+                                            <span class="file-name" id="file-name-display">resume.pdf</span>
+                                            <span class="file-meta" id="file-meta-display">0 KB</span>
+                                        </div>
+                                        <button type="button" class="btn-remove-file" id="btn-remove-pdf" title="Remove File"><i class="fa-solid fa-xmark"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="screener-resume-text"><i class="fa-solid fa-file-text"></i> Candidate Resume Text</label>
+                                <textarea id="screener-resume-text" class="form-control" rows="5" placeholder="Or paste candidate resume text manually here..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-screen-resume">
+                                <i class="fa-solid fa-gauge-high"></i> Evaluate Match & Score
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Output Panel Card -->
+                    <div class="card glass-card output-card">
+                        <div class="card-header border-bottom">
+                            <h3><i class="fa-solid fa-chart-simple"></i> Evaluation & Match Report</h3>
+                            <div class="output-actions" id="screener-actions" style="display: none;">
+                                <button class="btn btn-icon-sm" id="btn-copy-screener" title="Copy Report"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Visual Score Gauge Widget -->
+                            <div class="score-gauge-card" id="score-gauge-widget" style="display: none;">
+                                <div class="score-gauge-ring">
+                                    <div class="score-number" id="score-number-display">0</div>
+                                    <div class="score-max">/10</div>
+                                </div>
+                                <div class="score-badge-text" id="score-badge-text">Match Score</div>
+                            </div>
+
+                            <div class="placeholder-state" id="screener-placeholder">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                                <p>Upload a candidate PDF or paste resume text to analyze match score and get structured feedback.</p>
+                            </div>
+                            <div class="loading-spinner" id="screener-loading" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Evaluating candidate credentials against criteria...</p>
+                            </div>
+                            <div class="output-content markdown-body" id="screener-output" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: Interview Question Generator -->
+            <section id="tab-questions" class="tab-content">
+                <div class="grid-2col">
+                    <!-- Control Panel Card -->
+                    <div class="card glass-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-circle-question"></i> Generate Interview Questions</h2>
+                            <p>Create 5 tailored technical & behavioral interview questions with interviewer guidance.</p>
+                        </div>
+                        
+                        <!-- Quick Presets -->
+                        <div class="preset-group">
+                            <span class="preset-label">⚡ Quick Presets:</span>
+                            <button type="button" class="preset-btn" id="preset-q-ml">ML Engineer</button>
+                            <button type="button" class="preset-btn" id="preset-q-cloud">Cloud Architect</button>
+                        </div>
+
+                        <form id="form-questions">
+                            <div class="form-group">
+                                <label for="q-role"><i class="fa-solid fa-user-gear"></i> Target Role</label>
+                                <input type="text" id="q-role" class="form-control" placeholder="e.g. Machine Learning Engineer, DevOps Architect" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="q-level"><i class="fa-solid fa-layer-group"></i> Experience Level</label>
+                                <select id="q-level" class="form-control">
+                                    <option value="Junior / Entry-Level">Junior / Entry-Level</option>
+                                    <option value="Mid-Senior Level" selected>Mid-Senior Level</option>
+                                    <option value="Lead / Principal Architect">Lead / Principal Architect</option>
+                                    <option value="Engineering Manager">Engineering Manager</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-gen-questions">
+                                <i class="fa-solid fa-comments"></i> Generate Questions
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Output Panel Card -->
+                    <div class="card glass-card output-card">
+                        <div class="card-header border-bottom">
+                            <h3><i class="fa-solid fa-list-ol"></i> Tailored Interview Questions</h3>
+                            <div class="output-actions" id="questions-actions" style="display: none;">
+                                <button class="btn btn-icon-sm" id="btn-copy-questions" title="Copy Questions"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="placeholder-state" id="questions-placeholder">
+                                <i class="fa-solid fa-clipboard-question"></i>
+                                <p>Select the role and experience level to generate targeted technical and situational questions.</p>
+                            </div>
+                            <div class="loading-spinner" id="questions-loading" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Synthesizing tailored interview questions...</p>
+                            </div>
+                            <div class="output-content markdown-body" id="questions-output" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modal for API Key Settings -->
+    <div class="modal-overlay" id="modal-settings" style="display: none;">
+        <div class="modal-card glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key"></i> Google Gemini API Key Settings</h3>
+                <button class="btn-close-modal" id="btn-close-settings"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>By default, the server uses the <code>GOOGLE_API_KEY</code> set in your server <code>.env</code> file. You can also provide a custom key stored locally in your browser session.</p>
+                <div class="form-group" style="margin-top: 14px;">
+                    <label for="custom-api-key">Custom Google Gemini API Key</label>
+                    <input type="password" id="custom-api-key" class="form-control" placeholder="AIzaSy...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-clear-key">Clear Key</button>
+                <button class="btn btn-primary" id="btn-save-key">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom App JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
